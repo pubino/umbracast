@@ -43,16 +43,8 @@
 
         const baseUrl = "https://vdo.ninja";
 
-        // Generate a random session ID (persisted in sessionStorage for page refreshes)
-        function getSessionId() {
-            let sessionId = sessionStorage.getItem('umbracast_session');
-            if (!sessionId) {
-                sessionId = Math.random().toString(36).substring(2, 10);
-                sessionStorage.setItem('umbracast_session', sessionId);
-            }
-            return sessionId;
-        }
-        const roomPrefix = "classroom_" + getSessionId() + "_";
+        // Room prefix with random slug generated at build time
+        const roomPrefix = "classroom_2dt4l2rr_";
 
         const password = "";
 

@@ -234,16 +234,8 @@ generate_html() {
 
         const baseUrl = "$BASE_URL";
 
-        // Generate a random session ID (persisted in sessionStorage for page refreshes)
-        function getSessionId() {
-            let sessionId = sessionStorage.getItem('umbracast_session');
-            if (!sessionId) {
-                sessionId = Math.random().toString(36).substring(2, 10);
-                sessionStorage.setItem('umbracast_session', sessionId);
-            }
-            return sessionId;
-        }
-        const roomPrefix = "${ROOM_PREFIX}" + getSessionId() + "_";
+        // Room prefix with random slug generated at build time
+        const roomPrefix = "${ROOM_PREFIX}${SESSION_ID}_";
 
         const password = "$PASSWORD";
 
@@ -502,10 +494,13 @@ cmd_generate() {
         esac
     done
 
+    # Generate random session ID at build time
+    SESSION_ID=$(cat /dev/urandom | LC_ALL=C tr -dc 'a-z0-9' | head -c 8)
+
     show_banner
     echo -e "Generating files..."
     echo -e "  Base URL:    ${YELLOW}$BASE_URL${NC}"
-    echo -e "  Room prefix: ${YELLOW}$ROOM_PREFIX${NC}"
+    echo -e "  Room prefix: ${YELLOW}${ROOM_PREFIX}${SESSION_ID}_${NC}"
     echo -e "  Output:      ${YELLOW}$OUTPUT_DIR${NC}"
 
     if [[ -n "$CSV_FILE" ]]; then

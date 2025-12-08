@@ -65,18 +65,21 @@
             { name: "Olivia White", id: "olivia" }
         ];
 
-        // Generate a random session ID (persisted in sessionStorage for page refreshes)
-        function getSessionId() {
-            let sessionId = sessionStorage.getItem('umbracast_session');
-            if (!sessionId) {
-                sessionId = Math.random().toString(36).substring(2, 10);
-                sessionStorage.setItem('umbracast_session', sessionId);
+        // Room prefix - for the interactive page, generate once and store in localStorage
+        // so all users sharing the same page URL get the same links
+        function getRoomPrefix() {
+            // Check URL hash first (allows sharing specific session via URL)
+            const hashMatch = window.location.hash.match(/session=([a-z0-9]+)/i);
+            if (hashMatch) {
+                return "uc_" + hashMatch[1] + "_";
             }
-            return sessionId;
+            // Otherwise generate new session and put in URL hash for easy sharing
+            let sessionId = Math.random().toString(36).substring(2, 10);
+            window.location.hash = "session=" + sessionId;
+            return "uc_" + sessionId + "_";
         }
 
-        // Room prefix includes random session ID to prevent guessing
-        const roomPrefix = "uc_" + getSessionId() + "_";
+        const roomPrefix = getRoomPrefix();
 
         // CSV parsing state
         let csvData = null;
