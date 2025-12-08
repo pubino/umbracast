@@ -267,7 +267,6 @@ generate_html() {
                 <div class="student-row">
                     <span class="student-name">
                         \${student.name}
-                        <span class="student-id">#\${student.id}</span>
                     </span>
                     <a href="\${generateShareUrl(student.id)}" target="_blank" class="btn btn-share">Share</a>
                     <a href="\${generateViewUrl(student.id)}" target="_blank" class="btn btn-view">View</a>
