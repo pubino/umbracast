@@ -516,6 +516,26 @@ cmd_generate() {
 
     mkdir -p "$OUTPUT_DIR"
 
+    # Check for existing files
+    local existing_files=""
+    [[ -f "$OUTPUT_DIR/index.html" ]] && existing_files="index.html"
+    [[ -f "$OUTPUT_DIR/styles.css" ]] && existing_files="$existing_files styles.css"
+
+    if [[ -n "$existing_files" ]]; then
+        echo -e "${YELLOW}Warning:${NC} The following files already exist in $OUTPUT_DIR:"
+        for f in $existing_files; do
+            echo -e "  - $f"
+        done
+        echo ""
+        read -p "Overwrite? [y/N] " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo -e "${RED}Aborted.${NC}"
+            exit 1
+        fi
+        echo ""
+    fi
+
     generate_html > "$OUTPUT_DIR/index.html"
     echo -e "${GREEN}✓${NC} Generated $OUTPUT_DIR/index.html"
 
