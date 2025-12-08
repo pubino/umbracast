@@ -301,7 +301,7 @@ generate_css() {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    max-width: 1000px;
+    max-width: 600px;
     margin: 0 auto;
     padding: 30px 20px;
     background:
