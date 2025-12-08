@@ -416,25 +416,25 @@ h1 {
 .btn:active { transform: translateY(0); }
 
 .btn-share {
-    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    background: linear-gradient(135deg, #b8860b 0%, #d4a574 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+    box-shadow: 0 4px 15px rgba(212, 165, 116, 0.3);
 }
 
 .btn-share:hover {
-    background: linear-gradient(135deg, #219a52 0%, #27ae60 100%);
-    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+    background: linear-gradient(135deg, #9a7209 0%, #b8860b 100%);
+    box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
 }
 
 .btn-view {
-    background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    background: linear-gradient(135deg, #5a7a9a 0%, #b8c5d6 100%);
+    color: #0d0d1a;
+    box-shadow: 0 4px 15px rgba(184, 197, 214, 0.3);
 }
 
 .btn-view:hover {
-    background: linear-gradient(135deg, #2472a4 0%, #2980b9 100%);
-    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    background: linear-gradient(135deg, #4a6a8a 0%, #a8b5c6 100%);
+    box-shadow: 0 6px 20px rgba(184, 197, 214, 0.4);
 }
 
 .instructions {
