@@ -1,13 +1,13 @@
 # UmbraCast
 
-Classroom screen sharing made simple. UmbraCast provides a web-based interface for students to share their screens with a presenter, powered by [VDO.ninja](https://vdo.ninja).
+UmbraCast generates a web page of links for students to share their screens with a presenter, powered by [VDO.ninja](https://vdo.ninja).
 
 ## Features
 
 - Single page with student list showing Share and View buttons
 - Screen-only sharing (no webcam)
 - High quality video with audio disabled
-- CSV import for student rosters
+- CSV import for student roster
 - CLI tool for generating static deployments
 - Dark theme with planetary shadow aesthetics
 
@@ -191,9 +191,3 @@ Open `examples/index.html` in a browser to see a working example with 15 synthet
 - Modern web browser (Chrome, Firefox, Safari, Edge)
 - For CLI: Bash 3.2+ (macOS/Linux)
 - For self-hosting: Static web server (nginx, Apache, etc.)
-
-## License
-
-MIT License - Copyright (c) 2025 Princeton University
-
-See [LICENSE.md](LICENSE.md) for details.
