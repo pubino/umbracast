@@ -66,6 +66,7 @@ Then deploy the `./public` folder to your web server.
 | `-n, --no-header` | CSV has no header row | has header |
 | `--column NUM` | Column index for names (0-based) | `0` |
 | `--students "A,B,C"` | Comma-separated student names | - |
+| `-p, --password PASS` | Room password (prevents interlopers) | - |
 | `-h, --help` | Show help | - |
 
 ### Examples
@@ -89,12 +90,13 @@ Then deploy the `./public` folder to your web server.
 # Initialize VDO.ninja submodule for self-hosting
 ./umbracast.sh init-vdo
 
-# Full example for deployment
+# Full example for deployment with password protection
 ./umbracast.sh generate \
   -u https://vanderbei.princeton.edu/present/vdo.ninja \
   -r "orf309_" \
   -t "ORF 309 Screen Share" \
   -c roster.csv \
+  -p "ClassSecret123" \
   -o ./deploy
 ```
 

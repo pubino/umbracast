@@ -13,6 +13,8 @@
     <div class="config">
         <label for="baseUrl">VDO.ninja Base URL:</label>
         <input type="text" id="baseUrl" value="https://vdo.ninja" placeholder="https://vdo.ninja or your self-hosted URL">
+        <label for="roomPassword" style="margin-top: 12px;">Room Password (optional, share with class):</label>
+        <input type="text" id="roomPassword" value="" placeholder="Leave empty for no password">
     </div>
 
     <div class="csv-import">
@@ -63,8 +65,18 @@
             { name: "Olivia White", id: "olivia" }
         ];
 
-        // Room prefix to make stream IDs unique to this session
-        const roomPrefix = "classroom_";
+        // Generate a random session ID (persisted in sessionStorage for page refreshes)
+        function getSessionId() {
+            let sessionId = sessionStorage.getItem('umbracast_session');
+            if (!sessionId) {
+                sessionId = Math.random().toString(36).substring(2, 10);
+                sessionStorage.setItem('umbracast_session', sessionId);
+            }
+            return sessionId;
+        }
+
+        // Room prefix includes random session ID to prevent guessing
+        const roomPrefix = "uc_" + getSessionId() + "_";
 
         // CSV parsing state
         let csvData = null;
@@ -74,16 +86,24 @@
             return document.getElementById('baseUrl').value.replace(/\/$/, '');
         }
 
+        function getPassword() {
+            return document.getElementById('roomPassword').value.trim();
+        }
+
         function generateShareUrl(studentId) {
             const base = getBaseUrl();
             const streamId = roomPrefix + studentId;
-            return `${base}/?push=${streamId}&screenshare&quality=2&audiobitrate=0&noaudio`;
+            const password = getPassword();
+            const pwParam = password ? `&password=${encodeURIComponent(password)}` : '';
+            return `${base}/?push=${streamId}&screenshare&quality=2&audiobitrate=0&noaudio${pwParam}`;
         }
 
         function generateViewUrl(studentId) {
             const base = getBaseUrl();
             const streamId = roomPrefix + studentId;
-            return `${base}/?view=${streamId}&scene&codec=h264`;
+            const password = getPassword();
+            const pwParam = password ? `&password=${encodeURIComponent(password)}` : '';
+            return `${base}/?view=${streamId}&scene&codec=h264${pwParam}`;
         }
 
         // Generate a URL-safe ID from a name
@@ -255,6 +275,7 @@
 
         // Event listeners
         document.getElementById('baseUrl').addEventListener('input', renderStudentList);
+        document.getElementById('roomPassword').addEventListener('input', renderStudentList);
         document.getElementById('csvFile').addEventListener('change', handleFileSelect);
         document.getElementById('hasHeader').addEventListener('change', updateColumnSelector);
         document.getElementById('columnSelect').addEventListener('change', (e) => {

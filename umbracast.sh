@@ -26,6 +26,7 @@ CSV_FILE=""
 HAS_HEADER=true
 NAME_COLUMN=0
 STUDENTS_INLINE=""
+PASSWORD=""
 
 show_banner() {
     echo -e "${BLUE}"
@@ -76,6 +77,7 @@ Options:
   -n, --no-header         CSV has no header row (default: has header)
   --column NUM            Column index for names in CSV, 0-based (default: 0)
   --students "N1,N2,..."  Comma-separated list of student names
+  -p, --password PASS     Room password (share with class to prevent interlopers)
   -h, --help              Show this help message
 
 Examples:
@@ -231,16 +233,30 @@ generate_html() {
         const students = $student_json;
 
         const baseUrl = "$BASE_URL";
-        const roomPrefix = "$ROOM_PREFIX";
+
+        // Generate a random session ID (persisted in sessionStorage for page refreshes)
+        function getSessionId() {
+            let sessionId = sessionStorage.getItem('umbracast_session');
+            if (!sessionId) {
+                sessionId = Math.random().toString(36).substring(2, 10);
+                sessionStorage.setItem('umbracast_session', sessionId);
+            }
+            return sessionId;
+        }
+        const roomPrefix = "${ROOM_PREFIX}" + getSessionId() + "_";
+
+        const password = "$PASSWORD";
 
         function generateShareUrl(studentId) {
             const streamId = roomPrefix + studentId;
-            return \`\${baseUrl}/?push=\${streamId}&screenshare&quality=2&audiobitrate=0&noaudio\`;
+            const pwParam = password ? \`&password=\${encodeURIComponent(password)}\` : '';
+            return \`\${baseUrl}/?push=\${streamId}&screenshare&quality=2&audiobitrate=0&noaudio\${pwParam}\`;
         }
 
         function generateViewUrl(studentId) {
             const streamId = roomPrefix + studentId;
-            return \`\${baseUrl}/?view=\${streamId}&scene&codec=h264\`;
+            const pwParam = password ? \`&password=\${encodeURIComponent(password)}\` : '';
+            return \`\${baseUrl}/?view=\${streamId}&scene&codec=h264\${pwParam}\`;
         }
 
         function renderStudentList() {
@@ -480,6 +496,7 @@ cmd_generate() {
             -n|--no-header) HAS_HEADER=false; shift ;;
             --column) NAME_COLUMN="$2"; shift 2 ;;
             --students) STUDENTS_INLINE="$2"; shift 2 ;;
+            -p|--password) PASSWORD="$2"; shift 2 ;;
             -h|--help) usage_generate ;;
             *) echo -e "${RED}Unknown option: $1${NC}" >&2; usage_generate ;;
         esac

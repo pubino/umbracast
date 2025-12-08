@@ -42,16 +42,30 @@
         ];
 
         const baseUrl = "https://vdo.ninja";
-        const roomPrefix = "classroom_";
+
+        // Generate a random session ID (persisted in sessionStorage for page refreshes)
+        function getSessionId() {
+            let sessionId = sessionStorage.getItem('umbracast_session');
+            if (!sessionId) {
+                sessionId = Math.random().toString(36).substring(2, 10);
+                sessionStorage.setItem('umbracast_session', sessionId);
+            }
+            return sessionId;
+        }
+        const roomPrefix = "classroom_" + getSessionId() + "_";
+
+        const password = "";
 
         function generateShareUrl(studentId) {
             const streamId = roomPrefix + studentId;
-            return `${baseUrl}/?push=${streamId}&screenshare&quality=2&audiobitrate=0&noaudio`;
+            const pwParam = password ? `&password=${encodeURIComponent(password)}` : '';
+            return `${baseUrl}/?push=${streamId}&screenshare&quality=2&audiobitrate=0&noaudio${pwParam}`;
         }
 
         function generateViewUrl(studentId) {
             const streamId = roomPrefix + studentId;
-            return `${baseUrl}/?view=${streamId}&scene&codec=h264`;
+            const pwParam = password ? `&password=${encodeURIComponent(password)}` : '';
+            return `${baseUrl}/?view=${streamId}&scene&codec=h264${pwParam}`;
         }
 
         function renderStudentList() {
