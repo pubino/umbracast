@@ -215,7 +215,6 @@ generate_html() {
 </head>
 <body>
     <h1>$TITLE</h1>
-    <p class="subtitle">$SUBTITLE</p>
 
     <div class="student-list" id="studentList"></div>
 
