@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UmbraCast Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>UmbraCast Demo</h1>
+    <p class="subtitle">Example page with synthetic student data</p>
+
+    <div class="student-list" id="studentList"></div>
+
+    <div class="instructions">
+        <h3>Instructions</h3>
+        <ul>
+            <li><strong>Students:</strong> Click the green <em>Share</em> button next to your name, then select your screen to share</li>
+            <li><strong>Presenter:</strong> Click the blue <em>View</em> button to display a student's screen on the projector</li>
+            <li>Audio is disabled - use your voice in the room</li>
+            <li>Only screen sharing is enabled (no webcam)</li>
+        </ul>
+    </div>
+
+    <script>
+        const students = [
+            { "name": "Alice Chen", "id": "alice_chen" },
+            { "name": "Bob Martinez", "id": "bob_martinez" },
+            { "name": "Carol Johnson", "id": "carol_johnson" },
+            { "name": "David Kim", "id": "david_kim" },
+            { "name": "Emma Wilson", "id": "emma_wilson" },
+            { "name": "Frank Brown", "id": "frank_brown" },
+            { "name": "Grace Lee", "id": "grace_lee" },
+            { "name": "Henry Davis", "id": "henry_davis" },
+            { "name": "Iris Patel", "id": "iris_patel" },
+            { "name": "Jack Thompson", "id": "jack_thompson" },
+            { "name": "Katie Moore", "id": "katie_moore" },
+            { "name": "Liam Garcia", "id": "liam_garcia" },
+            { "name": "Maya Anderson", "id": "maya_anderson" },
+            { "name": "Noah Taylor", "id": "noah_taylor" },
+            { "name": "Olivia White", "id": "olivia_white" }
+        ];
+
+        const baseUrl = "https://vdo.ninja";
+        const roomPrefix = "classroom_";
+
+        function generateShareUrl(studentId) {
+            const streamId = roomPrefix + studentId;
+            return `${baseUrl}/?push=${streamId}&screenshare&quality=2&audiobitrate=0&noaudio`;
+        }
+
+        function generateViewUrl(studentId) {
+            const streamId = roomPrefix + studentId;
+            return `${baseUrl}/?view=${streamId}&scene&codec=h264`;
+        }
+
+        function renderStudentList() {
+            const container = document.getElementById('studentList');
+            container.innerHTML = students.map(student => `
+                <div class="student-row">
+                    <span class="student-name">
+                        ${student.name}
+                        <span class="student-id">#${student.id}</span>
+                    </span>
+                    <a href="${generateShareUrl(student.id)}" target="_blank" class="btn btn-share">Share</a>
+                    <a href="${generateViewUrl(student.id)}" target="_blank" class="btn btn-view">View</a>
+                </div>
+            `).join('');
+        }
+
+        renderStudentList();
+    </script>
+</body>
+</html>

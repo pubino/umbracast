@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UmbraCast - Classroom Screen Share</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>UmbraCast</h1>
+    <p class="subtitle">Click your name to share your screen with the class</p>
+
+    <div class="config">
+        <label for="baseUrl">VDO.ninja Base URL:</label>
+        <input type="text" id="baseUrl" value="https://vdo.ninja" placeholder="https://vdo.ninja or your self-hosted URL">
+    </div>
+
+    <div class="csv-import">
+        <h3>Import Student List from CSV</h3>
+        <div class="csv-row">
+            <input type="file" id="csvFile" accept=".csv,.txt">
+            <label>
+                <input type="checkbox" id="hasHeader" checked>
+                First row is header
+            </label>
+            <label class="column-select" id="columnSelectLabel">
+                Name column:
+                <select id="columnSelect"></select>
+            </label>
+        </div>
+        <div class="csv-status" id="csvStatus"></div>
+    </div>
+
+    <div class="student-list" id="studentList"></div>
+
+    <div class="instructions">
+        <h3>Instructions</h3>
+        <ul>
+            <li><strong>Students:</strong> Click the green <em>Share</em> button next to your name, then select your screen to share</li>
+            <li><strong>Presenter:</strong> Click the blue <em>View</em> button to display a student's screen on the projector</li>
+            <li>Audio is disabled - use your voice in the room</li>
+            <li>Only screen sharing is enabled (no webcam)</li>
+        </ul>
+    </div>
+
+    <script>
+        // Student list - starts with synthetic data, can be replaced via CSV import
+        let students = [
+            { name: "Alice Chen", id: "alice" },
+            { name: "Bob Martinez", id: "bob" },
+            { name: "Carol Johnson", id: "carol" },
+            { name: "David Kim", id: "david" },
+            { name: "Emma Wilson", id: "emma" },
+            { name: "Frank Brown", id: "frank" },
+            { name: "Grace Lee", id: "grace" },
+            { name: "Henry Davis", id: "henry" },
+            { name: "Iris Patel", id: "iris" },
+            { name: "Jack Thompson", id: "jack" },
+            { name: "Katie Moore", id: "katie" },
+            { name: "Liam Garcia", id: "liam" },
+            { name: "Maya Anderson", id: "maya" },
+            { name: "Noah Taylor", id: "noah" },
+            { name: "Olivia White", id: "olivia" }
+        ];
+
+        // Room prefix to make stream IDs unique to this session
+        const roomPrefix = "classroom_";
+
+        // CSV parsing state
+        let csvData = null;
+        let csvHeaders = null;
+
+        function getBaseUrl() {
+            return document.getElementById('baseUrl').value.replace(/\/$/, '');
+        }
+
+        function generateShareUrl(studentId) {
+            const base = getBaseUrl();
+            const streamId = roomPrefix + studentId;
+            return `${base}/?push=${streamId}&screenshare&quality=2&audiobitrate=0&noaudio`;
+        }
+
+        function generateViewUrl(studentId) {
+            const base = getBaseUrl();
+            const streamId = roomPrefix + studentId;
+            return `${base}/?view=${streamId}&scene&codec=h264`;
+        }
+
+        // Generate a URL-safe ID from a name
+        function nameToId(name) {
+            return name
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_|_$/g, '')
+                .substring(0, 30);
+        }
+
+        // Parse CSV content
+        function parseCSV(text) {
+            const lines = text.split(/\r?\n/).filter(line => line.trim());
+            if (lines.length === 0) return { headers: [], rows: [] };
+
+            const parseRow = (line) => {
+                const result = [];
+                let current = '';
+                let inQuotes = false;
+
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    if (char === '"') {
+                        if (inQuotes && line[i + 1] === '"') {
+                            current += '"';
+                            i++;
+                        } else {
+                            inQuotes = !inQuotes;
+                        }
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                result.push(current.trim());
+                return result;
+            };
+
+            const rows = lines.map(parseRow);
+            return { headers: rows[0], rows: rows };
+        }
+
+        // Update column selector dropdown
+        function updateColumnSelector() {
+            const select = document.getElementById('columnSelect');
+            const label = document.getElementById('columnSelectLabel');
+            const hasHeader = document.getElementById('hasHeader').checked;
+
+            if (!csvData || csvData.rows.length === 0) {
+                label.classList.remove('visible');
+                return;
+            }
+
+            const firstRow = csvData.rows[0];
+            if (firstRow.length <= 1) {
+                // Single column, no need for selector
+                label.classList.remove('visible');
+                importFromColumn(0);
+                return;
+            }
+
+            // Multiple columns - show selector
+            label.classList.add('visible');
+            select.innerHTML = firstRow.map((col, i) => {
+                const displayName = hasHeader ? col : `Column ${i + 1}`;
+                return `<option value="${i}">${displayName}</option>`;
+            }).join('');
+
+            // Auto-select column with "name" in header if present
+            if (hasHeader) {
+                const nameIndex = firstRow.findIndex(h =>
+                    /name/i.test(h) || /student/i.test(h)
+                );
+                if (nameIndex >= 0) {
+                    select.value = nameIndex;
+                }
+            }
+
+            importFromColumn(parseInt(select.value));
+        }
+
+        // Import students from selected column
+        function importFromColumn(colIndex) {
+            const hasHeader = document.getElementById('hasHeader').checked;
+            const status = document.getElementById('csvStatus');
+
+            if (!csvData || csvData.rows.length === 0) return;
+
+            const startRow = hasHeader ? 1 : 0;
+            const names = csvData.rows
+                .slice(startRow)
+                .map(row => row[colIndex])
+                .filter(name => name && name.trim());
+
+            if (names.length === 0) {
+                status.textContent = 'No valid names found in selected column';
+                status.className = 'csv-status error';
+                return;
+            }
+
+            // Generate unique IDs
+            const idCounts = {};
+            students = names.map(name => {
+                let baseId = nameToId(name);
+                if (!baseId) baseId = 'student';
+
+                if (idCounts[baseId]) {
+                    idCounts[baseId]++;
+                    return { name: name.trim(), id: `${baseId}_${idCounts[baseId]}` };
+                } else {
+                    idCounts[baseId] = 1;
+                    return { name: name.trim(), id: baseId };
+                }
+            });
+
+            status.textContent = `Imported ${students.length} student${students.length !== 1 ? 's' : ''}`;
+            status.className = 'csv-status success';
+            renderStudentList();
+        }
+
+        // Handle CSV file selection
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            const status = document.getElementById('csvStatus');
+
+            if (!file) {
+                status.textContent = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    csvData = parseCSV(e.target.result);
+                    if (csvData.rows.length === 0) {
+                        status.textContent = 'CSV file is empty';
+                        status.className = 'csv-status error';
+                        return;
+                    }
+                    updateColumnSelector();
+                } catch (err) {
+                    status.textContent = 'Error parsing CSV: ' + err.message;
+                    status.className = 'csv-status error';
+                }
+            };
+            reader.onerror = () => {
+                status.textContent = 'Error reading file';
+                status.className = 'csv-status error';
+            };
+            reader.readAsText(file);
+        }
+
+        function renderStudentList() {
+            const container = document.getElementById('studentList');
+            container.innerHTML = students.map(student => `
+                <div class="student-row">
+                    <span class="student-name">
+                        ${student.name}
+                        <span class="student-id">#${student.id}</span>
+                    </span>
+                    <a href="${generateShareUrl(student.id)}" target="_blank" class="btn btn-share" onclick="this.href=generateShareUrl('${student.id}')">Share</a>
+                    <a href="${generateViewUrl(student.id)}" target="_blank" class="btn btn-view" onclick="this.href=generateViewUrl('${student.id}')">View</a>
+                </div>
+            `).join('');
+        }
+
+        // Event listeners
+        document.getElementById('baseUrl').addEventListener('input', renderStudentList);
+        document.getElementById('csvFile').addEventListener('change', handleFileSelect);
+        document.getElementById('hasHeader').addEventListener('change', updateColumnSelector);
+        document.getElementById('columnSelect').addEventListener('change', (e) => {
+            importFromColumn(parseInt(e.target.value));
+        });
+
+        // Initial render
+        renderStudentList();
+    </script>
+</body>
+</html>
