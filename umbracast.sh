@@ -242,13 +242,15 @@ generate_html() {
         function generateShareUrl(studentId) {
             const streamId = roomPrefix + studentId;
             const pwParam = password ? \`&password=\${encodeURIComponent(password)}\` : '';
-            return \`\${baseUrl}/?push=\${streamId}&screenshare&quality=2&audiobitrate=0&noaudio\${pwParam}\`;
+            // quality=0 for 1080p, screensharecontenthint=detail for sharp text
+            return \`\${baseUrl}/?push=\${streamId}&screenshare&quality=0&screensharecontenthint=detail&audiobitrate=0&noaudio\${pwParam}\`;
         }
 
         function generateViewUrl(studentId) {
             const streamId = roomPrefix + studentId;
             const pwParam = password ? \`&password=\${encodeURIComponent(password)}\` : '';
-            return \`\${baseUrl}/?view=\${streamId}&scene&codec=h264\${pwParam}\`;
+            // High bitrate, no scaling, sharper screen for text clarity
+            return \`\${baseUrl}/?view=\${streamId}&scene&videobitrate=12000&scale=100&sharperscreen&codec=vp9\${pwParam}\`;
         }
 
         function renderStudentList() {
