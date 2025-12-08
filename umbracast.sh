@@ -27,6 +27,7 @@ HAS_HEADER=true
 NAME_COLUMN=0
 STUDENTS_INLINE=""
 PASSWORD=""
+FIRST_NAME_ONLY=false
 
 show_banner() {
     echo -e "${BLUE}"
@@ -78,6 +79,7 @@ Options:
   --column NUM            Column index for names in CSV, 0-based (default: 0)
   --students "N1,N2,..."  Comma-separated list of student names
   -p, --password PASS     Room password (share with class to prevent interlopers)
+  --first-name            Display only first name (text before first space)
   -h, --help              Show this help message
 
 Examples:
@@ -179,6 +181,7 @@ build_student_json() {
         name=$(echo "$name" | xargs)
         [[ -z "$name" ]] && continue
 
+        # Always use full name for ID generation (ensures uniqueness)
         local base_id=$(name_to_id "$name")
         [[ -z "$base_id" ]] && base_id="student"
 
@@ -189,10 +192,16 @@ build_student_json() {
         fi
         id_list="${id_list}${base_id}"$'\n'
 
+        # Display name: first name only if --first-name flag set
+        local display_name="$name"
+        if [[ "$FIRST_NAME_ONLY" == "true" ]]; then
+            display_name="${name%% *}"
+        fi
+
         [[ "$first" != "true" ]] && json+=","
         first=false
 
-        local escaped_name="${name//\"/\\\"}"
+        local escaped_name="${display_name//\"/\\\"}"
         json+="\n            { \"name\": \"$escaped_name\", \"id\": \"$id\" }"
     done
 
@@ -490,6 +499,7 @@ cmd_generate() {
             --column) NAME_COLUMN="$2"; shift 2 ;;
             --students) STUDENTS_INLINE="$2"; shift 2 ;;
             -p|--password) PASSWORD="$2"; shift 2 ;;
+            --first-name) FIRST_NAME_ONLY=true; shift ;;
             -h|--help) usage_generate ;;
             *) echo -e "${RED}Unknown option: $1${NC}" >&2; usage_generate ;;
         esac
