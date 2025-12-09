@@ -9,7 +9,6 @@ UmbraCast generates a web page of links for students to share their screens with
 - High quality video with audio disabled
 - CSV import for student roster
 - CLI tool for generating static deployments
-- Dark theme with planetary shadow aesthetics
 
 ## Installation
 
