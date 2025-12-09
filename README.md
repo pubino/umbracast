@@ -1,6 +1,6 @@
 # UmbraCast
 
-UmbraCast generates a web page of links for students to quickly and easily share their screens. Powered by [VDO.ninja](https://vdo.ninja).
+UmbraCast generates a web page of links for students to share their screens with a presenter, powered by [VDO.ninja](https://vdo.ninja).
 
 ## Features
 
@@ -92,7 +92,7 @@ Then deploy the `./public` folder to your web server.
 
 # Full example for deployment with password protection
 ./umbracast.sh generate \
-  -u https://vanderbei.princeton.edu/present/vdo.ninja \
+  -u https://yourserver.edu/present/vdo.ninja \
   -r "orf309_" \
   -t "ORF 309 Screen Share" \
   -c roster.csv \
@@ -155,39 +155,4 @@ VDO.ninja is purely client-side and uses public TURN/STUN servers by default, so
 
 UmbraCast generates VDO.ninja URLs with these parameters:
 
-**Share links:**
-- `push=STREAM_ID` - Publish stream
-- `screenshare` - Force screen share picker
-- `quality=2` - High quality video
-- `noaudio` - Disable audio capture
-- `autostart` - Auto-start sharing
-
-**View links:**
-- `view=STREAM_ID` - View the stream
-- `scene` - Clean view without UI
-- `codec=h264` - Better compatibility
-
-## File Structure
-
 ```
-umbracast/
-├── index.html      # Interactive web page with CSV import
-├── styles.css      # Dark theme stylesheet
-├── umbracast.sh    # CLI tool for generating deployments
-├── README.md       # This file
-├── LICENSE.md      # MIT License
-├── vdo.ninja/      # VDO.ninja submodule (for self-hosting)
-└── examples/       # Example output with synthetic data
-    ├── index.html
-    └── styles.css
-```
-
-## Demo
-
-Open `examples/index.html` in a browser to see a working example with 15 synthetic student names.
-
-## Requirements
-
-- Modern web browser (Chrome, Firefox, Safari, Edge)
-- For CLI: Bash 3.2+ (macOS/Linux)
-- For self-hosting: Static web server (nginx, Apache, etc.)
