@@ -1,6 +1,6 @@
 # UmbraCast
 
-UmbraCast generates a web page of links for students to share their screens with a presenter, powered by [VDO.ninja](https://vdo.ninja).
+UmbraCast generates a web page of links for students to quickly and easily share their screens. Powered by [VDO.ninja](https://vdo.ninja).
 
 ## Features
 
