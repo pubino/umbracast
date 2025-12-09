@@ -150,9 +150,3 @@ cp -r vdo.ninja /path/to/webserver/vdo.ninja
 ```
 
 VDO.ninja is purely client-side and uses public TURN/STUN servers by default, so it works without server-side configuration.
-
-## How It Works
-
-UmbraCast generates VDO.ninja URLs with these parameters:
-
-```
